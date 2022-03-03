@@ -1,10 +1,17 @@
 spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          github: 
+            client-id: Iv1.54928fb509c6579c
+            client-secret: d8a5cd02cf33975e7c5be9957d435babe0b613b8
   data:
     cassandra:
       keyspace-name: main
       username: SbSPtAPznRqMjLsssSQZMZes
       password: zQaovaCMKZW66RsyrFniZlRKp20h0EdJ0GHWugzMF.Z0BNAdGwTJUzgeca0ExJAzG1-j9iJElKzMNC+IcWfzHCNzPcy_BMkdOUnQYp7PXlAfZuBoN6lgzTn1eBq7Gw3G
-      schema-action: create-if-not-exists
+      schema-action: recreate-drop-unused
       request:
         timeout: 10s
       connection:
