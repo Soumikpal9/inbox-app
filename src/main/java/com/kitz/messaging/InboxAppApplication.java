@@ -18,6 +18,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.datastax.oss.driver.api.core.uuid.Uuids;
+import com.kitz.messaging.email.Email;
+import com.kitz.messaging.email.EmailRepository;
 import com.kitz.messaging.emailList.EmailListItem;
 import com.kitz.messaging.emailList.EmailListItemKey;
 import com.kitz.messaging.emailList.EmailListItemRepository;
@@ -33,6 +35,9 @@ public class InboxAppApplication {
 	
 	@Autowired
 	EmailListItemRepository emailListItemRepository;
+	
+	@Autowired
+	EmailRepository emailRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(InboxAppApplication.class, args);
@@ -73,11 +78,20 @@ public class InboxAppApplication {
 			
 			EmailListItem item = new EmailListItem();
 			item.setKey(key);
-			item.setTo(Arrays.asList("Soumikpal9"));
+			item.setTo(Arrays.asList("Soumikpal9", "abc", "def"));
 			item.setSubject("Subject " + i);
 			item.setUnread(true);
 			
 			emailListItemRepository.save(item);
+			
+			Email email = new Email();
+			email.setId(key.getTimeuuid());
+			email.setFrom("Soumikpal9");
+			email.setSubject(item.getSubject());
+			email.setBody("Body" + i);
+			email.setTo(item.getTo());
+			
+			emailRepository.save(email);
 		}
 	}
 

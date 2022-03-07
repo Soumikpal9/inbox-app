@@ -1,10 +1,9 @@
 package com.kitz.messaging.controllers;
 
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -12,23 +11,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 
-import com.datastax.oss.driver.api.core.uuid.Uuids;
-import com.kitz.messaging.emailList.EmailListItem;
-import com.kitz.messaging.emailList.EmailListItemRepository;
+import com.kitz.messaging.email.Email;
+import com.kitz.messaging.email.EmailRepository;
 import com.kitz.messaging.folders.Folder;
 import com.kitz.messaging.folders.FolderRepository;
 import com.kitz.messaging.folders.FolderService;
 
 @Controller
-public class InboxController {
-
+public class EmailViewController {
+	
 	private FolderRepository folderRepository;
 	
 	private FolderService folderService;
 	
-	private EmailListItemRepository emailListItemRepository;
+	private EmailRepository emailRepository;
 	
 	@Autowired
 	public void setFolderRepository(FolderRepository folderRepository) {
@@ -41,12 +39,12 @@ public class InboxController {
 	}
 	
 	@Autowired
-	public void setEmailListItemRepository(EmailListItemRepository emailListItemRepository) {
-		this.emailListItemRepository = emailListItemRepository;
+	public void setEmailRepository(EmailRepository emailRepository) {
+		this.emailRepository = emailRepository;
 	}
 	
-	@GetMapping("/")
-	public String homePage(@RequestParam(required = false) String folder, @AuthenticationPrincipal OAuth2User principal, Model model) {
+	@GetMapping("/emails/{id}")
+	public String homePage(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User principal, Model model) {
 		
 		if(principal == null || !StringUtils.hasText(principal.getAttribute("login"))) {
 			return "index";
@@ -61,22 +59,18 @@ public class InboxController {
 		List<Folder> defaultFolders = this.folderService.fetchDefaultFolders(userId);
 		model.addAttribute("defaultFolders", defaultFolders);
 		
-		//Fetch Messages
-		if(!StringUtils.hasText(folder)) {
-			folder = "Inbox";
+		Optional<Email> optionalEmail = this.emailRepository.findById(id);
+		if(!optionalEmail.isPresent()) {
+			return "inbox-page";
 		}
 		
-		List<EmailListItem> emailList = this.emailListItemRepository.findAllByKey_IdAndKey_Label(userId, folder);
-		PrettyTime p = new PrettyTime();
-		for(EmailListItem emailItem : emailList) {
-			UUID timeUuid = emailItem.getKey().getTimeuuid();
-			Date emailDateTime = new Date(Uuids.unixTimestamp(timeUuid));
-			emailItem.setAgoTimeString(p.format(emailDateTime));
-		}
-		model.addAttribute("emailList", emailList);
-		model.addAttribute("folderName", folder);
+		Email email = optionalEmail.get();
+		String toIds = String.join(",", email.getTo());
 		
-		return "inbox-page";
+		model.addAttribute("email", email);
+		model.addAttribute("toIds", toIds);
+		
+		return "email-page";
 		
 	}
 	

@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Inbox</title>
+    <title>EmailPage</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"
@@ -81,22 +81,18 @@
 		
 		  <main>
 		    
-		    <div class="card" th:if="${emailList}">
-			  <div class="card-header" th:text="${folderName}">
-			    Folder
-			  </div>
-			  <div class="card-body">
-			  	<div class="list-group">
-				  <a th:each="message: ${emailList}" th:href="@{
-				  '/emails/' + ${message.key.timeuuid}}" class="list-group-item list-group-item-action">
-					    <div class="d-flex w-100 justify-content-between">
-					      <h5 class="mb-1" th:text="${message.subject}">Subject</h5>
-					      <small th:text="${message.agoTimeString}">Time</small>
-					    </div>
-					    <p class="mb-1" th:text="${message.to}">To</p>
-					</a>
-				</div>
-			  </div>
+		    <div class="card">
+			  <div class="card-header">Email View</div>
+			  <dl class="card-body">
+			  	<dt>From</dl>
+			  	<dd th:text="${email.from}"></dt>
+			  	<dt>To</dl>
+			  	<dd th:text="${toIds}"></dt>
+			  	<dt>Subject</dt>
+			  	<dd th:text="${email.subject}"></dd>
+			  	<dt>Body</dt>
+			  	<dd th:text="${email.body}"></dd>
+			  </dl>
 			</div>
 		    
 		  </main>
