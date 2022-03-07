@@ -10,13 +10,12 @@ import org.springframework.data.cassandra.core.mapping.Column;
 @Table(value = "folders_by_user")
 public class Folder {
 
-	@PrimaryKeyColumn(name = "fbu_user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+	@PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
 	private String id;
 	
-	@PrimaryKeyColumn(name = "fbu_label", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
+	@PrimaryKeyColumn(name = "label", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
 	private String label;
 	
-	@Column(value = "fbu_color")
 	@CassandraType(type = Name.TEXT)
 	private String color;
 	

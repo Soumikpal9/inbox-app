@@ -18,6 +18,7 @@
     ></script>
     
     <style>
+    	
     	.container {
 		  display: grid;
 		
@@ -60,7 +61,7 @@
     
 	</head>
 	<body>
-	
+		
 		<h1>Inbox</h1>
 		
 		<div class="container">
@@ -79,7 +80,24 @@
 		  </nav>
 		
 		  <main>
-		    <p>Email List</p>
+		    
+		    <div class="card" th:if="${emailList}">
+			  <div class="card-header">
+			    Inbox
+			  </div>
+			  <div class="card-body">
+			  	<div class="list-group">
+				  <a th:each="message: ${emailList}" href="#" class="list-group-item list-group-item-action">
+					    <div class="d-flex w-100 justify-content-between">
+					      <h5 class="mb-1" th:text="${message.subject}">Subject</h5>
+					      <small th:text="${message.agoTimeString}">Time</small>
+					    </div>
+					    <p class="mb-1" th:text="${message.to}">To</p>
+					</a>
+				</div>
+			  </div>
+			</div>
+		    
 		  </main>
 		
 		  <footer>

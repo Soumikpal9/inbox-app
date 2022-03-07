@@ -1,6 +1,7 @@
 package com.kitz.messaging;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 
 import javax.annotation.PostConstruct;
 
@@ -16,6 +17,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.datastax.oss.driver.api.core.uuid.Uuids;
+import com.kitz.messaging.emailList.EmailListItem;
+import com.kitz.messaging.emailList.EmailListItemKey;
+import com.kitz.messaging.emailList.EmailListItemRepository;
 import com.kitz.messaging.folders.Folder;
 import com.kitz.messaging.folders.FolderRepository;
 
@@ -25,6 +30,9 @@ public class InboxAppApplication {
 	
 	@Autowired
 	FolderRepository folderRepository;
+	
+	@Autowired
+	EmailListItemRepository emailListItemRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(InboxAppApplication.class, args);
@@ -56,6 +64,21 @@ public class InboxAppApplication {
 		folderRepository.save(folder1);
 		folderRepository.save(folder2);
 		folderRepository.save(folder3);
+		
+		for(int i = 0; i < 10; i++) {
+			EmailListItemKey key = new EmailListItemKey();
+			key.setId("Soumikpal9");
+			key.setLabel("Inbox");
+			key.setTimeuuid(Uuids.timeBased());
+			
+			EmailListItem item = new EmailListItem();
+			item.setKey(key);
+			item.setTo(Arrays.asList("Soumikpal9"));
+			item.setSubject("Subject " + i);
+			item.setUnread(true);
+			
+			emailListItemRepository.save(item);
+		}
 	}
 
 }
