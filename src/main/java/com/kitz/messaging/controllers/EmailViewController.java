@@ -59,6 +59,9 @@ public class EmailViewController {
 		List<Folder> defaultFolders = this.folderService.fetchDefaultFolders(userId);
 		model.addAttribute("defaultFolders", defaultFolders);
 		
+		model.addAttribute("unreadCount", this.folderService.mapCountToLabel(userId));
+		
+		//Fetch Single Email
 		Optional<Email> optionalEmail = this.emailRepository.findById(id);
 		if(!optionalEmail.isPresent()) {
 			return "inbox-page";

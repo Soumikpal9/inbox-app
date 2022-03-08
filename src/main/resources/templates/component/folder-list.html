@@ -16,7 +16,7 @@
 				  <li th:each="folder: ${folders}" 
 				  		class="list-group-item d-flex justify-content-between align-items-center">
 				    <a th:href="@{'/?folder=' + ${folder.label}}" th:text="${folder.label}">Label</a>
-				    <span class="badge bg-primary rounded-pill">14</span>
+				    <span th:text="${unreadCount.get(folder.label)}" class="badge bg-primary rounded-pill">Unread</span>
 				  </li>
 				</ul>
 			  </div>

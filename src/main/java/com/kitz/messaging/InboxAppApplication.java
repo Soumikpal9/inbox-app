@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.kitz.messaging.email.Email;
 import com.kitz.messaging.email.EmailRepository;
+import com.kitz.messaging.email.EmailService;
 import com.kitz.messaging.emailList.EmailListItem;
 import com.kitz.messaging.emailList.EmailListItemKey;
 import com.kitz.messaging.emailList.EmailListItemRepository;
@@ -31,17 +32,19 @@ import com.kitz.messaging.folders.UnreadEmailStatsRepository;
 @Controller
 public class InboxAppApplication {
 	
-	@Autowired
-	FolderRepository folderRepository;
+	private FolderRepository folderRepository;
+	
+	private EmailService emailService;
 	
 	@Autowired
-	EmailListItemRepository emailListItemRepository;
+	public void setFolderRepository(FolderRepository folderRepository) {
+		this.folderRepository = folderRepository;
+	}
 	
 	@Autowired
-	EmailRepository emailRepository;
-	
-	@Autowired
-	UnreadEmailStatsRepository unreadEmailStatsRepository; 
+	public void setEmailService(EmailService emailService) {
+		this.emailService = emailService;
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(InboxAppApplication.class, args);
@@ -67,39 +70,17 @@ public class InboxAppApplication {
 	
 	@PostConstruct
 	public void init() {
-		Folder folder1 = new Folder("Soumikpal9", "Inbox", "blue");
-		Folder folder2 = new Folder("Soumikpal9", "Sent", "green");
-		Folder folder3 = new Folder("Soumikpal9", "Important", "yellow");
+		Folder folder1 = new Folder("Soumikpal9", "Work", "blue");
+		Folder folder2 = new Folder("Soumikpal9", "Family", "green");
+		Folder folder3 = new Folder("Soumikpal9", "Home", "yellow");
 		folderRepository.save(folder1);
 		folderRepository.save(folder2);
 		folderRepository.save(folder3);
 		
-		unreadEmailStatsRepository.incrementUnreadCount("Soumikpal9", "Inbox");
-		unreadEmailStatsRepository.incrementUnreadCount("Soumikpal9", "Inbox");
-		unreadEmailStatsRepository.incrementUnreadCount("Soumikpal9", "Inbox");
-		
 		for(int i = 0; i < 10; i++) {
-			EmailListItemKey key = new EmailListItemKey();
-			key.setId("Soumikpal9");
-			key.setLabel("Inbox");
-			key.setTimeuuid(Uuids.timeBased());
 			
-			EmailListItem item = new EmailListItem();
-			item.setKey(key);
-			item.setTo(Arrays.asList("Soumikpal9", "abc", "def"));
-			item.setSubject("Subject " + i);
-			item.setUnread(true);
+			this.emailService.sendEmail("Soumikpal9", Arrays.asList("Soumikpal9"), "Hello " + i, "Still in beta! Hold tight!");
 			
-			emailListItemRepository.save(item);
-			
-			Email email = new Email();
-			email.setId(key.getTimeuuid());
-			email.setFrom("Soumikpal9");
-			email.setSubject(item.getSubject());
-			email.setBody("Body" + i);
-			email.setTo(item.getTo());
-			
-			emailRepository.save(email);
 		}
 	}
 

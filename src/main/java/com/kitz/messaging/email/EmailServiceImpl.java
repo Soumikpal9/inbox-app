@@ -9,6 +9,7 @@ import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.kitz.messaging.emailList.EmailListItem;
 import com.kitz.messaging.emailList.EmailListItemKey;
 import com.kitz.messaging.emailList.EmailListItemRepository;
+import com.kitz.messaging.folders.UnreadEmailStatsRepository;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -16,6 +17,8 @@ public class EmailServiceImpl implements EmailService {
 	private EmailRepository emailRepository;
 	
 	private EmailListItemRepository emailListItemRepository; 
+	
+	private UnreadEmailStatsRepository unreadEmailStatsRepository;
 	
 	@Autowired
 	public void setEmailRepository(EmailRepository emailRepository) {
@@ -25,6 +28,11 @@ public class EmailServiceImpl implements EmailService {
 	@Autowired
 	public void setEmailListItemRepository(EmailListItemRepository emailListItemRepository) {
 		this.emailListItemRepository = emailListItemRepository;
+	}
+	
+	@Autowired
+	public void setUnreadEmailStatsRepository(UnreadEmailStatsRepository unreadEmailStatsRepository) {
+		this.unreadEmailStatsRepository = unreadEmailStatsRepository;
 	}
 
 	@Override
@@ -41,9 +49,11 @@ public class EmailServiceImpl implements EmailService {
 		for(String recipient : toIds) {
 			EmailListItem emailItem = this.createEmailItemForOwner(toIds, subject, email, recipient, "Inbox");
 			this.emailListItemRepository.save(emailItem);
+			this.unreadEmailStatsRepository.incrementUnreadCount(recipient, "Inbox");
 		}
 		
 		EmailListItem sentItem = this.createEmailItemForOwner(toIds, subject, email, from, "Sent");
+		sentItem.setUnread(false);
 		this.emailListItemRepository.save(sentItem);
 		
 	}

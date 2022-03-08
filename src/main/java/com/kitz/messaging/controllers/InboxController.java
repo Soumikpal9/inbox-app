@@ -20,6 +20,8 @@ import com.kitz.messaging.emailList.EmailListItemRepository;
 import com.kitz.messaging.folders.Folder;
 import com.kitz.messaging.folders.FolderRepository;
 import com.kitz.messaging.folders.FolderService;
+import com.kitz.messaging.folders.UnreadEmailStats;
+import com.kitz.messaging.folders.UnreadEmailStatsRepository;
 
 @Controller
 public class InboxController {
@@ -29,6 +31,8 @@ public class InboxController {
 	private FolderService folderService;
 	
 	private EmailListItemRepository emailListItemRepository;
+	
+	private UnreadEmailStatsRepository unreadEmailStatsRepository;
 	
 	@Autowired
 	public void setFolderRepository(FolderRepository folderRepository) {
@@ -43,6 +47,11 @@ public class InboxController {
 	@Autowired
 	public void setEmailListItemRepository(EmailListItemRepository emailListItemRepository) {
 		this.emailListItemRepository = emailListItemRepository;
+	}
+	
+	@Autowired
+	public void setUnreadEmailStatsRepository(UnreadEmailStatsRepository unreadEmailStatsRepository) {
+		this.unreadEmailStatsRepository = unreadEmailStatsRepository;
 	}
 	
 	@GetMapping("/")
@@ -63,7 +72,7 @@ public class InboxController {
 		List<Folder> defaultFolders = this.folderService.fetchDefaultFolders(userId);
 		model.addAttribute("defaultFolders", defaultFolders);
 		
-		//Fetch Messages
+		//Fetch Emails
 		if(!StringUtils.hasText(folder)) {
 			folder = "Inbox";
 		}
@@ -77,6 +86,8 @@ public class InboxController {
 		}
 		model.addAttribute("emailList", emailList);
 		model.addAttribute("folderName", folder);
+		
+		model.addAttribute("unreadCount", this.folderService.mapCountToLabel(userId));
 		
 		return "inbox-page";
 		
