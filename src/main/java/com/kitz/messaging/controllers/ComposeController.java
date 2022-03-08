@@ -1,10 +1,11 @@
 package com.kitz.messaging.controllers;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
-import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -14,21 +15,16 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.datastax.oss.driver.api.core.uuid.Uuids;
-import com.kitz.messaging.emailList.EmailListItem;
-import com.kitz.messaging.emailList.EmailListItemRepository;
 import com.kitz.messaging.folders.Folder;
 import com.kitz.messaging.folders.FolderRepository;
 import com.kitz.messaging.folders.FolderService;
 
 @Controller
-public class InboxController {
-
+public class ComposeController {
+	
 	private FolderRepository folderRepository;
 	
 	private FolderService folderService;
-	
-	private EmailListItemRepository emailListItemRepository;
 	
 	@Autowired
 	public void setFolderRepository(FolderRepository folderRepository) {
@@ -40,13 +36,10 @@ public class InboxController {
 		this.folderService = folderService;
 	}
 	
-	@Autowired
-	public void setEmailListItemRepository(EmailListItemRepository emailListItemRepository) {
-		this.emailListItemRepository = emailListItemRepository;
-	}
-	
-	@GetMapping("/")
-	public String homePage(@RequestParam(required = false) String folder, @AuthenticationPrincipal OAuth2User principal, Model model) {
+	@GetMapping("/compose")
+	public String getComposePage(
+			@RequestParam(required = false) String to,
+			@AuthenticationPrincipal OAuth2User principal, Model model) {
 		
 		if(principal == null || !StringUtils.hasText(principal.getAttribute("login"))) {
 			return "index";
@@ -63,22 +56,20 @@ public class InboxController {
 		List<Folder> defaultFolders = this.folderService.fetchDefaultFolders(userId);
 		model.addAttribute("defaultFolders", defaultFolders);
 		
-		//Fetch Messages
-		if(!StringUtils.hasText(folder)) {
-			folder = "Inbox";
+		//To IDs Cleaning
+		if(StringUtils.hasText(to)) {
+			String[] splitIds = to.split(",");
+			List<String> uniqueToIds = Arrays.asList(splitIds)
+										.stream()
+										.map(id -> StringUtils.trimWhitespace(id))
+										.filter(id -> StringUtils.hasText(id))
+										.distinct()
+										.collect(Collectors.toList());
+			
+			model.addAttribute("toIds", String.join(", ", uniqueToIds));
 		}
 		
-		List<EmailListItem> emailList = this.emailListItemRepository.findAllByKey_IdAndKey_Label(userId, folder);
-		PrettyTime p = new PrettyTime();
-		for(EmailListItem emailItem : emailList) {
-			UUID timeUuid = emailItem.getKey().getTimeuuid();
-			Date emailDateTime = new Date(Uuids.unixTimestamp(timeUuid));
-			emailItem.setAgoTimeString(p.format(emailDateTime));
-		}
-		model.addAttribute("emailList", emailList);
-		model.addAttribute("folderName", folder);
-		
-		return "inbox-page";
+		return "compose-page";
 		
 	}
 	

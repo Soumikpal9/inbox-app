@@ -56,13 +56,14 @@
 		  grid-area: footer;
 		}
 		
-    	.from{
-    		margin-left: 17px;
-    	}
+		.form-group{
+			margin-bottom: 8px;
+		}
+		
+		.btn{
+			margin-top: 5px;
+		}
     	
-    	.from-1{
-    		
-    	}
     	
     </style>
     
@@ -77,10 +78,6 @@
 		  </header>
 		
 		  <nav>
-		  
-			  <div class="card">
-			  	<a href="/compose" class="btn btn-primary">Compose Message</a>
-			  </div>
 		  	
 		  	<div th:insert="component/folder-list :: folder-list (panelName = 'Folders', folders = ${defaultFolders})">
 		  	</div>
@@ -93,23 +90,26 @@
 		  <main>
 		    
 		    <div class="card">
-			  <div class="card-header">Email View</div>
-			  <div class="card-body">
-			  	<dl>
-				  	<dt class="from">From</dt>
-				  	<dd class="from" th:text="${email.from}"></dt>
-				  	<dt class="from">To</dt>
-				  	<dd class="from" th:text="${toIds}"></dt>
-				  	<dt class="from">Subject</dt>
-				  	<dd class="from" th:text="${email.subject}"></dd>
-				  	<dt class="from">Body</dt>
-				  	<dd class="from" th:text="${email.body}"></dd>
-			  	</dl>
-			  	<div class="d-grid gap-2 d-md-flex justify-content-md-end">
-			  		<a th:href="@{'/compose?to=' + ${email.from}}" class="btn btn-primary me-md-2" type="button">Reply</a>
-			  		<a th:href="@{'/compose?to=' + ${toIds} + ',' + ${email.from}}" class="btn btn-primary" type="button">Reply All</a>
-			  	</div>
-			  </div>
+			  <div class="card-header">Create New Email</div>
+			  <dl class="card-body">
+			  	<form>
+				  <div class="form-group">
+				    <label for="toIds" class="form-label">To</label>
+				    <input th:value="${toIds}" type="text" class="form-control" id="toIds" aria-describedby="toIdhelp">
+				    <small id="emailHelp" class="form-text">Enter comma seperated Github IDs of your recipients</small>
+				  </div>
+				  <div class="form-group">
+				    <label for="subject" class="form-label">Subject</label>
+				    <input type="text" class="form-control" id="subject">
+				  </div>
+				  <div class="form-group">
+				    <label for="body" class="form-label">Body</label>
+				    <textarea rows="10" type="text" class="form-control" id="body"></textarea>
+				  </div>
+				  
+				  <button type="submit" class="btn btn-primary">Submit</button>
+				</form>
+			  </dl>
 			</div>
 		    
 		  </main>
