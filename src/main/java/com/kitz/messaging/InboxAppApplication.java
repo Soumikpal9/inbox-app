@@ -25,6 +25,7 @@ import com.kitz.messaging.emailList.EmailListItemKey;
 import com.kitz.messaging.emailList.EmailListItemRepository;
 import com.kitz.messaging.folders.Folder;
 import com.kitz.messaging.folders.FolderRepository;
+import com.kitz.messaging.folders.UnreadEmailStatsRepository;
 
 @SpringBootApplication
 @Controller
@@ -38,6 +39,9 @@ public class InboxAppApplication {
 	
 	@Autowired
 	EmailRepository emailRepository;
+	
+	@Autowired
+	UnreadEmailStatsRepository unreadEmailStatsRepository; 
 
 	public static void main(String[] args) {
 		SpringApplication.run(InboxAppApplication.class, args);
@@ -69,6 +73,10 @@ public class InboxAppApplication {
 		folderRepository.save(folder1);
 		folderRepository.save(folder2);
 		folderRepository.save(folder3);
+		
+		unreadEmailStatsRepository.incrementUnreadCount("Soumikpal9", "Inbox");
+		unreadEmailStatsRepository.incrementUnreadCount("Soumikpal9", "Inbox");
+		unreadEmailStatsRepository.incrementUnreadCount("Soumikpal9", "Inbox");
 		
 		for(int i = 0; i < 10; i++) {
 			EmailListItemKey key = new EmailListItemKey();
