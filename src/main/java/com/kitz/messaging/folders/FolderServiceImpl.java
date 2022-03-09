@@ -13,9 +13,16 @@ public class FolderServiceImpl implements FolderService {
 	
 	private UnreadEmailStatsRepository unreadEmailStatsRepository;
 	
+	private FolderRepository folderRepository;
+	
 	@Autowired
 	public void setUnreadEmailStatsRepository(UnreadEmailStatsRepository unreadEmailStatsRepository) {
 		this.unreadEmailStatsRepository = unreadEmailStatsRepository;
+	}
+	
+	@Autowired
+	public void setFolderRepository(FolderRepository folderRepository) {
+		this.folderRepository = folderRepository;
 	}
 
 	@Override
@@ -33,6 +40,11 @@ public class FolderServiceImpl implements FolderService {
 	public Map<String, Long> mapCountToLabel(String userId) {
 		List<UnreadEmailStats> stats = this.unreadEmailStatsRepository.findAllById(userId);
 		return stats.stream().collect(Collectors.toMap(UnreadEmailStats::getLabel, UnreadEmailStats::getUnreadCount));
+	}
+
+	@Override
+	public List<Folder> findAllById(String userId) {
+		return this.folderRepository.findAllById(userId);
 	}
 
 }

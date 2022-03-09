@@ -26,16 +26,9 @@ import com.kitz.messaging.folders.FolderService;
 @Controller
 public class ComposeController {
 	
-	private FolderRepository folderRepository;
-	
 	private FolderService folderService;
 	
 	private EmailService emailService;
-	
-	@Autowired
-	public void setFolderRepository(FolderRepository folderRepository) {
-		this.folderRepository = folderRepository;
-	}
 	
 	@Autowired
 	public void setFolderService(FolderService folderService) {
@@ -59,18 +52,19 @@ public class ComposeController {
 		//Fetch User ID
 		String userId = principal.getAttribute("login");
 		String userName = principal.getAttribute("name");
-		model.addAttribute("user", userName);
+		
 		
 		//Fetch Folders
-		List<Folder> userFolders = this.folderRepository.findAllById(userId);
-		model.addAttribute("userFolders", userFolders);
+		List<Folder> userFolders = this.folderService.findAllById(userId);
 		List<Folder> defaultFolders = this.folderService.fetchDefaultFolders(userId);
-		model.addAttribute("defaultFolders", defaultFolders);
 		
 		//Fetch Recipient IDs
 		List<String> uniqueToIds = this.splitToIds(to);
-		model.addAttribute("toIds", String.join(", ", uniqueToIds));
 		
+		model.addAttribute("user", userName);
+		model.addAttribute("userFolders", userFolders);
+		model.addAttribute("defaultFolders", defaultFolders);
+		model.addAttribute("toIds", String.join(", ", uniqueToIds));
 		model.addAttribute("unreadCount", this.folderService.mapCountToLabel(userId));
 		
 		return "compose-page";

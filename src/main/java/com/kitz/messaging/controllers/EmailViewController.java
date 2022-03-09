@@ -15,54 +15,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.kitz.messaging.email.Email;
-import com.kitz.messaging.email.EmailRepository;
 import com.kitz.messaging.email.EmailService;
-import com.kitz.messaging.emailList.EmailListItem;
-import com.kitz.messaging.emailList.EmailListItemKey;
-import com.kitz.messaging.emailList.EmailListItemRepository;
 import com.kitz.messaging.folders.Folder;
-import com.kitz.messaging.folders.FolderRepository;
 import com.kitz.messaging.folders.FolderService;
-import com.kitz.messaging.folders.UnreadEmailStatsRepository;
 
 @Controller
 public class EmailViewController {
 	
-	private FolderRepository folderRepository;
-	
 	private FolderService folderService;
-	
-	private EmailRepository emailRepository;
-	
-	private EmailListItemRepository emailListItemRepository; 
-	
-	private UnreadEmailStatsRepository unreadEmailStatsRepository;
 	
 	private EmailService emailService;
 	
 	@Autowired
-	public void setFolderRepository(FolderRepository folderRepository) {
-		this.folderRepository = folderRepository;
-	}
-	
-	@Autowired
 	public void setFolderService(FolderService folderService) {
 		this.folderService = folderService;
-	}
-	
-	@Autowired
-	public void setEmailRepository(EmailRepository emailRepository) {
-		this.emailRepository = emailRepository;
-	}
-	
-	@Autowired
-	public void setEmailListItemRepository(EmailListItemRepository emailListItemRepository) {
-		this.emailListItemRepository = emailListItemRepository;
-	}
-	
-	@Autowired
-	public void setUnreadEmailStatsRepository(UnreadEmailStatsRepository unreadEmailStatsRepository) {
-		this.unreadEmailStatsRepository = unreadEmailStatsRepository;
 	}
 	
 	@Autowired
@@ -79,35 +45,34 @@ public class EmailViewController {
 		
 		//Fetch User ID
 		String userId = principal.getAttribute("login");
+		String userName = principal.getAttribute("name");
 		
 		//Fetch Folders
-		List<Folder> userFolders = this.folderRepository.findAllById(userId);
-		model.addAttribute("userFolders", userFolders);
+		List<Folder> userFolders = this.folderService.findAllById(userId);
 		List<Folder> defaultFolders = this.folderService.fetchDefaultFolders(userId);
-		model.addAttribute("defaultFolders", defaultFolders);
 		
 		//Fetch Single Email
-		Optional<Email> optionalEmail = this.emailRepository.findById(id);
+		Optional<Email> optionalEmail = this.emailService.findById(id);
 		if(!optionalEmail.isPresent()) {
 			return "inbox-page";
 		}
-		
 		Email email = optionalEmail.get();
 		String toIds = String.join(",", email.getTo());
 		
-		model.addAttribute("email", email);
-		model.addAttribute("toIds", toIds);
-		
+		//Update Email Status Read
 		if(!StringUtils.hasText(folder)) {
 			folder="Inbox";
 		}
-		
-		model.addAttribute("folderName", folder);
-		
 		if(folder.equals("Inbox")) {
 			this.emailService.updateEmailAsRead(false, userId, "Inbox", email.getId());
 		}
 		
+		model.addAttribute("user", userName);
+		model.addAttribute("userFolders", userFolders);
+		model.addAttribute("defaultFolders", defaultFolders);
+		model.addAttribute("email", email);
+		model.addAttribute("toIds", toIds);
+		model.addAttribute("folderName", folder);
 		model.addAttribute("unreadCount", this.folderService.mapCountToLabel(userId));
 		
 		return "email-page";
