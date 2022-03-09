@@ -25,6 +25,17 @@ public class EmailListItem {
 	
 	@Transient
 	private String agoTimeString;
+	
+	@Transient
+	private boolean isInbox;
+
+	public boolean getInbox() {
+		return isInbox;
+	}
+
+	public void setInbox(boolean isInbox) {
+		this.isInbox = isInbox;
+	}
 
 	public EmailListItemKey getKey() {
 		return key;
