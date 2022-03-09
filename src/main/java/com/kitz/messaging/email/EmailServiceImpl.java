@@ -1,6 +1,8 @@
 package com.kitz.messaging.email;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -72,6 +74,22 @@ public class EmailServiceImpl implements EmailService {
 		item.setUnread(true);
 		
 		return item;
+	}
+
+	@Override
+	public void updateEmailAsRead(boolean isUnread, String userId, String label, UUID timeUUID) {
+		EmailListItemKey key = new EmailListItemKey();
+		key.setId(userId);
+		key.setLabel(label);
+		key.setTimeuuid(timeUUID);
+		
+		Optional<EmailListItem> item = this.emailListItemRepository.findById(key);
+		EmailListItem emailItem = item.get();
+		
+		if(emailItem.getUnread()) {
+			this.emailListItemRepository.updateEmailAsRead(isUnread, userId, label, timeUUID);
+			this.unreadEmailStatsRepository.decrementUnreadCount(userId, label);
+		}
 	}
 	
 	
