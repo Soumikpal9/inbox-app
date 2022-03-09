@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.datastax.oss.driver.api.core.uuid.Uuids;
+import com.kitz.messaging.email.EmailService;
 import com.kitz.messaging.emailList.EmailListItem;
 import com.kitz.messaging.emailList.EmailListItemRepository;
 import com.kitz.messaging.folders.Folder;
@@ -32,7 +33,7 @@ public class InboxController {
 	
 	private EmailListItemRepository emailListItemRepository;
 	
-	private UnreadEmailStatsRepository unreadEmailStatsRepository;
+	private EmailService emailService;
 	
 	@Autowired
 	public void setFolderRepository(FolderRepository folderRepository) {
@@ -50,8 +51,8 @@ public class InboxController {
 	}
 	
 	@Autowired
-	public void setUnreadEmailStatsRepository(UnreadEmailStatsRepository unreadEmailStatsRepository) {
-		this.unreadEmailStatsRepository = unreadEmailStatsRepository;
+	public void setEmailService(EmailService emailService) {
+		this.emailService = emailService;
 	}
 	
 	@GetMapping("/")
@@ -83,6 +84,12 @@ public class InboxController {
 			UUID timeUuid = emailItem.getKey().getTimeuuid();
 			Date emailDateTime = new Date(Uuids.unixTimestamp(timeUuid));
 			emailItem.setAgoTimeString(p.format(emailDateTime));
+			if(folder.equals("Inbox")) {
+				emailItem.setInbox(true);
+			}
+			else {
+				emailItem.setInbox(false);
+			}
 		}
 		model.addAttribute("emailList", emailList);
 		model.addAttribute("folderName", folder);

@@ -64,16 +64,20 @@
     		
     	}
     	
+    	.container{
+			padding-top: 40px;
+		}
+    	
     </style>
     
 	</head>
 	<body>
 		
-		<h1>Inbox</h1>
+		<h1></h1>
 		
 		<div class="container">
 		  <header>
-		    <h1>Hello, name</h1>
+		    <h1>Hello, <span th:text="${user}">name</span></h1>
 		  </header>
 		
 		  <nav>

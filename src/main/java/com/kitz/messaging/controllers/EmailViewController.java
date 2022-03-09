@@ -12,12 +12,18 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.kitz.messaging.email.Email;
 import com.kitz.messaging.email.EmailRepository;
+import com.kitz.messaging.email.EmailService;
+import com.kitz.messaging.emailList.EmailListItem;
+import com.kitz.messaging.emailList.EmailListItemKey;
+import com.kitz.messaging.emailList.EmailListItemRepository;
 import com.kitz.messaging.folders.Folder;
 import com.kitz.messaging.folders.FolderRepository;
 import com.kitz.messaging.folders.FolderService;
+import com.kitz.messaging.folders.UnreadEmailStatsRepository;
 
 @Controller
 public class EmailViewController {
@@ -27,6 +33,12 @@ public class EmailViewController {
 	private FolderService folderService;
 	
 	private EmailRepository emailRepository;
+	
+	private EmailListItemRepository emailListItemRepository; 
+	
+	private UnreadEmailStatsRepository unreadEmailStatsRepository;
+	
+	private EmailService emailService;
 	
 	@Autowired
 	public void setFolderRepository(FolderRepository folderRepository) {
@@ -43,8 +55,23 @@ public class EmailViewController {
 		this.emailRepository = emailRepository;
 	}
 	
+	@Autowired
+	public void setEmailListItemRepository(EmailListItemRepository emailListItemRepository) {
+		this.emailListItemRepository = emailListItemRepository;
+	}
+	
+	@Autowired
+	public void setUnreadEmailStatsRepository(UnreadEmailStatsRepository unreadEmailStatsRepository) {
+		this.unreadEmailStatsRepository = unreadEmailStatsRepository;
+	}
+	
+	@Autowired
+	public void setEmailService(EmailService emailService) {
+		this.emailService = emailService;
+	}
+	
 	@GetMapping("/emails/{id}")
-	public String homePage(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User principal, Model model) {
+	public String homePage(@RequestParam(required = false) String folder, @PathVariable UUID id, @AuthenticationPrincipal OAuth2User principal, Model model) {
 		
 		if(principal == null || !StringUtils.hasText(principal.getAttribute("login"))) {
 			return "index";
@@ -59,8 +86,6 @@ public class EmailViewController {
 		List<Folder> defaultFolders = this.folderService.fetchDefaultFolders(userId);
 		model.addAttribute("defaultFolders", defaultFolders);
 		
-		model.addAttribute("unreadCount", this.folderService.mapCountToLabel(userId));
-		
 		//Fetch Single Email
 		Optional<Email> optionalEmail = this.emailRepository.findById(id);
 		if(!optionalEmail.isPresent()) {
@@ -72,6 +97,18 @@ public class EmailViewController {
 		
 		model.addAttribute("email", email);
 		model.addAttribute("toIds", toIds);
+		
+		if(!StringUtils.hasText(folder)) {
+			folder="Inbox";
+		}
+		
+		model.addAttribute("folderName", folder);
+		
+		if(folder.equals("Inbox")) {
+			this.emailService.updateEmailAsRead(false, userId, "Inbox", email.getId());
+		}
+		
+		model.addAttribute("unreadCount", this.folderService.mapCountToLabel(userId));
 		
 		return "email-page";
 		
