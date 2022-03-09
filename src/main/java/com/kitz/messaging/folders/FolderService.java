@@ -8,5 +8,7 @@ public interface FolderService {
 	List<Folder> fetchDefaultFolders(String userId);
 
 	Map<String, Long> mapCountToLabel(String userId);
+
+	List<Folder> findAllById(String userId);
 	
 }

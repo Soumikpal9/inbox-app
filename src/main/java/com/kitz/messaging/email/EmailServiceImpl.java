@@ -91,6 +91,11 @@ public class EmailServiceImpl implements EmailService {
 			this.unreadEmailStatsRepository.decrementUnreadCount(userId, label);
 		}
 	}
+
+	@Override
+	public Optional<Email> findById(UUID id) {
+		return this.emailRepository.findById(id);
+	}
 	
 	
 	
